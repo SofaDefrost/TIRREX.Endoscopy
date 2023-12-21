@@ -1,0 +1,49 @@
+[Simulation]
+ROS=false
+CPUMultithreading=false
+friction=0.6
+
+[EndoscopeWagons]
+instrumentsHead=["hook","gripper"]
+
+[Items]
+    [Items.Box]
+    position=[[700,50,0]]
+    filename='scripts/environment/mesh/box.stl'
+    collisionFilename='scripts/environment/mesh/boxCollision.stl'
+    withCollision=true
+    color=[[0.6,0.6,0.6,1.0]]
+    type='Rigid'
+
+    [Items.Torus]
+    number=1
+    filename='scripts/environment/mesh/torus.stl'
+    collisionFilename='scripts/environment/mesh/torusCollision.stl'
+    position=[[620,-10,0]]
+    scale=[[1.0,0.75,1.0]]
+    withSolver=true
+    withCollision=true
+    collisionGroup=''
+    youngModulus=1000
+    poissonRatio=0.3
+    totalMass=0.001
+    color=[[0.3,0.1,0.1,1.0]]
+    type='Deformable'
+
+    [Items.TorusStatic]
+    number=1
+    filename='scripts/environment/mesh/torus.stl'
+    collisionFilename='scripts/environment/mesh/torusCollision.stl'
+    position=[[620.0,-15.0,0.0]]
+    scale=[[1.1,0.75,1.1]]
+    withSolver=false
+    withCollision=[true]
+    color=[[0.3,0.1,0.1,0.3]]
+    type='Rigid'
+
+    [Items.Cylinder3]
+    filename='scripts/environment/mesh/cylinder1.stl'
+    position=[[620.0,-17.0,0.0]]
+    withCollision=true
+    color=[[0.4,0.4,0.4,1.0]]
+    type='Rigid'

@@ -1,0 +1,48 @@
+[Endoscopes]
+number=1
+instrumentsHead=["hook","gripper"]
+hysteresis=[0,0,0,0]
+
+[EndoscopeWagons]
+number=0
+
+[Items]
+    [Items.Box]
+    position=[[700,50,0]]
+    filename='scripts/environment/mesh/box.stl'
+    collisionFilename='scripts/environment/mesh/boxCollision.stl'
+    withCollision=true
+    color=[[0.6,0.6,0.6,1.0]]
+    type='Rigid'
+
+    [Items.Cylinder1]
+    filename='scripts/environment/mesh/cylinder1.stl'
+    position=[[800,-60,-100]]
+    withCollision=true
+    color=[[0.4,0.4,0.4,1.0]]
+    type='Rigid'
+
+    [Items.Cylinder2]
+    filename='scripts/environment/mesh/cylinder2.stl'
+    position=[[700,0,235]]
+    withCollision=true
+    color=[[0.4,0.4,0.4,1.0]]
+    type='Rigid'
+
+    [Items.Cylinder3]
+    filename='scripts/environment/mesh/cylinder3.stl'
+    position=[[700,0,-245]]
+    withCollision=true
+    color=[[0.4,0.4,0.4,1.0]]
+    type='Rigid'
+
+    [Items.Torus]
+    number=2
+    filename='scripts/environment/mesh/torus.stl'
+    collisionFilename='scripts/environment/mesh/torusCollision.stl'
+    position=[[800,-90,-100],[800,-80,-100],[800,-70,-100],[800,-60,-100],[800,-50,-100]]
+    withSolver=true
+    withCollision=true
+    collisionGroup=''
+    color=[[0.3,0.1,0.1,1.0],[0.3,0.1,0.1,1.0]]
+    type='Rigid'

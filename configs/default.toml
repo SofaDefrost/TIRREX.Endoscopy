@@ -1,0 +1,15 @@
+[Simulation]
+GUI=false
+ROS=false
+
+[Scene]
+sideViewSize=[1750, 1000]
+
+[Items]
+    [Items.Box]
+    position=[[700,50,0]]
+    filename='scripts/environment/mesh/box.stl'
+    collisionFilename='scripts/environment/mesh/boxCollision.stl'
+    withCollision=true
+    color=[[0.6,0.6,0.6,1.0]]
+    type='Rigid'
