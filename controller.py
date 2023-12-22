@@ -77,6 +77,7 @@ class SofaROSInterface(Sofa.Core.Controller):
         self.name = "SOFAROSInterface"
 
         # Arguments
+        self.rootnode = wagon.node.getRoot()
         self.wagon = wagon
         self.framesOI = framesOI
         self.camera = camera
@@ -101,6 +102,9 @@ class SofaROSInterface(Sofa.Core.Controller):
         self.pubCommands = self.node.create_publisher(Float32MultiArray, "/TIRREX/endoscopy/simulationCommands", 10)
         self.pubFramesOI = self.node.create_publisher(Float32MultiArray, "/TIRREX/endoscopy/simulationFramesOI", 10)
         self.pubImage = self.node.create_publisher(Float32MultiArray, "/TIRREX/endoscopy/simulationImage", 10)
+
+    # def draw(self, vparams):
+    #     self.processImageToSend
 
     def callback(self, commands):
         self.commandsInterface = commands.data
@@ -156,9 +160,7 @@ class SofaROSInterface(Sofa.Core.Controller):
     def processCommandsReceived(self):
         commands = self.commandsInterface
         params = self.params
-        dt = self.node.getDt()
-
-        commands = []
+        dt = self.rootnode.getDt()
         self.updateCommandsSimulation()
 
         def addCommand(command, dataSimu, dataCommand):
