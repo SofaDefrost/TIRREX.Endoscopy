@@ -36,6 +36,7 @@ def emulateInterface(commands):
     print('\033[94m Received commands from topic /TIRREX/endoscopy/simulationCommands: \033[0m')
     print('\033[94m (Displacements and rotations in mm and degrees) \033[0m')
     displayCommandsDescription(commands.data)
+
     # Send commands value to /TIRREX/endoscopy/interfaceCommands
     msg = Float32MultiArray()  # wrapper for ROS primitive types
     # see : https://github.com/ros2/common_interfaces/tree/master/std_msgs
@@ -44,6 +45,9 @@ def emulateInterface(commands):
                 -123., -35., 10., 13.5,
                 -123., -75., -10., 33.5]
     controllerPubCommands.publish(msg)
+    print('\033[94m Publishing commands to topic /TIRREX/endoscopy/interfaceCommands: \033[0m')
+    print('\033[94m (Displacements and rotations in mm and degrees) \033[0m')
+    displayCommandsDescription(msg.data)
 
 
 if __name__ == '__main__':
@@ -51,12 +55,7 @@ if __name__ == '__main__':
     controllerROSnode = rclpy.create_node('EndoscopeInterface')
     controllerROSnode.get_logger().info('Created node')
 
-    subCommands = controllerROSnode.create_subscription(Float32MultiArray, "/TIRREX/endoscopy/simulationCommands",
-                                                        emulateInterface, 10)
-    subFramesOI = controllerROSnode.create_subscription(Float32MultiArray, "/TIRREX/endoscopy/simulationFramesOI",
-                                                        emulateInterface, 10)
-    subImage = controllerROSnode.create_subscription(Float32MultiArray, "/TIRREX/endoscopy/simulationImage",
-                                                     emulateInterface, 10)
+    subCommands = controllerROSnode.create_subscription(Float32MultiArray, "/TIRREX/endoscopy/simulationCommands", emulateInterface, 10)
     controllerPubCommands = controllerROSnode.create_publisher(Float32MultiArray, "/TIRREX/endoscopy/interfaceCommands", 10)
 
     rclpy.spin(controllerROSnode)
@@ -160,8 +159,10 @@ class SofaROSInterface(Sofa.Core.Controller):
     def processCommandsReceived(self):
         commands = self.commandsInterface
         params = self.params
-        dt = self.rootnode.getDt()
+
         self.updateCommandsSimulation()
+
+        commandsGUI = []
 
         def addCommand(command, dataSimu, dataCommand):
             eps = 1e-1
@@ -171,19 +172,17 @@ class SofaROSInterface(Sofa.Core.Controller):
         # ENDOSCOPE
         # received q0 endoscope flexion U/D velocity in degree/s
         direction = params.endoscopeCommand.flexionUD.direction
-        rotation = math.radians(self.commandsSimulation[0] + commands[
-            0] * dt - params.endoscopeCommand.flexionUD.offset)  # convert to rotation angle in radian
+        rotation = math.radians(commands[0] - params.endoscopeCommand.flexionUD.offset)  # convert to rotation angle in radian
         disp = direction * self.endoscope.getCableDispFromFlexion(rotation)  # convert to displacement in mm
-        addCommand(commands, self.commandsSimulation[0], disp)
+        addCommand(commandsGUI, self.commandsSimulation[0], disp)
         self.endoscope.node.cableU.value = disp
         self.endoscope.node.cableD.value = -disp
 
         # received q1 endoscope flexion L/R velocity in degree/s
         direction = params.endoscopeCommand.flexionLR.direction
-        rotation = math.radians(self.commandsSimulation[1] + commands[
-            1] * dt - params.endoscopeCommand.flexionLR.offset)  # convert to rotation angle in radian
+        rotation = math.radians(commands[1] - params.endoscopeCommand.flexionLR.offset)  # convert to rotation angle in radian
         disp = direction * self.endoscope.getCableDispFromFlexion(rotation)  # convert to displacement in mm
-        addCommand(commands, self.commandsSimulation[1], disp)
+        addCommand(commandsGUI, self.commandsSimulation[1], disp)
         self.endoscope.node.cableL.value = disp
         self.endoscope.node.cableR.value = -disp
 
@@ -191,16 +190,15 @@ class SofaROSInterface(Sofa.Core.Controller):
         # received q2 endoscope rotation velocity in degree/s
         direction = params.endoscopeCommand.rotation.direction
         # convert to rotation angle in radian
-        rotation = direction * math.radians(
-            self.commandsSimulation[2] + commands[2] * dt - params.endoscopeCommand.rotation.offset)
-        addCommand(commands, self.commandsSimulation[2], rotation)
+        rotation = direction * math.radians(commands[2] - params.endoscopeCommand.rotation.offset)
+        addCommand(commandsGUI, self.commandsSimulation[2], rotation)
         dofs[3] = rotation
 
         # received q3 endoscope translation velocity in mm/s
         direction = params.endoscopeCommand.translation.direction
         # convert to displacement in mm
-        translation = direction * (self.commandsSimulation[3] + commands[3] * dt - params.endoscopeCommand.translation.offset)
-        addCommand(commands, self.commandsSimulation[3], translation)
+        translation = direction * (commands[3] - params.endoscopeCommand.translation.offset)
+        addCommand(commandsGUI, self.commandsSimulation[3], translation)
         dofs[2] = translation
         self.wagon.node.dofs.value = dofs
 
@@ -208,68 +206,62 @@ class SofaROSInterface(Sofa.Core.Controller):
         # received q4 instrument L translation velocity in mm/s
         direction = params.instrumentCommand.translation.direction
         # convert to displacement in mm
-        translation = direction * (self.commandsSimulation[4] + commands[4] * dt - params.instrumentCommand.translation.offset)
-        addCommand(commands, self.commandsSimulation[4], translation)
+        translation = direction * (commands[4] - params.instrumentCommand.translation.offset)
+        addCommand(commandsGUI, self.commandsSimulation[4], translation)
         self.instruments[0].node.displacement.value = translation
 
         angles = np.copy(self.endoscope.node.OrientableCanals.angles.value)
         # received q5 instrument L rotation velocity in degree/s
         direction = params.instrumentCommand.rotation.direction
         # convert to angle in radian
-        rotation = direction * math.radians(
-            self.commandsSimulation[5] + commands[5] * dt - params.instrumentCommand.rotation.offset)
-        addCommand(commands, self.commandsSimulation[5], rotation)
+        rotation = direction * math.radians(commands[5] - params.instrumentCommand.rotation.offset)
+        addCommand(commandsGUI, self.commandsSimulation[5], rotation)
         angles[2] = rotation
 
         # received q6 instrument L flexion velocity L/R in degree/s
         direction = params.instrumentCommand.flexionLR.direction
-        rotation = math.radians(self.commandsSimulation[6] + commands[
-            6] * dt - params.instrumentCommand.flexionLR.offset)  # convert to rotation angle in radian
+        rotation = math.radians(commands[6] - params.instrumentCommand.flexionLR.offset)  # convert to rotation angle in radian
         disp = direction * self.instruments[0].getCableDispFromFlexion(rotation)  # convert to displacement in mm
-        addCommand(commands, self.commandsSimulation[6], disp)
+        addCommand(commandsGUI, self.commandsSimulation[6], disp)
         self.instruments[0].node.cableL.value = disp
         self.instruments[0].node.cableR.value = -disp
 
         # received q7 instrument L gripper in degree
-        rotation = math.radians(
-            commands[7] - params.instrumentCommand.gripper.offset) * params.instrumentCommand.gripper.factor
-        commands += [rotation]
+        rotation = math.radians(commands[7] - params.instrumentCommand.gripper.offset) * params.instrumentCommand.gripper.factor
+        commandsGUI += [rotation]
         self.instruments[0].node.Gripper.angles.value = [rotation, -rotation]
 
         # INSTRUMENT RIGHT
         # received q8 instrument R translation velocity in mm/s
         direction = params.instrumentCommand.translation.direction
         # convert to displacement in mm
-        translation = direction * (self.commandsSimulation[8] + commands[8] * dt - params.instrumentCommand.translation.offset)
-        addCommand(commands, self.commandsSimulation[8], translation)
+        translation = direction * (commands[8] - params.instrumentCommand.translation.offset)
+        addCommand(commandsGUI, self.commandsSimulation[8], translation)
         self.instruments[1].node.displacement.value = translation
 
         # received q9 instrument R rotation velocity in degree/s
         direction = params.instrumentCommand.rotation.direction
         # convert to angle in radian
-        rotation = direction * math.radians(
-            self.commandsSimulation[9] + commands[9] * dt - params.instrumentCommand.rotation.offset)
-        addCommand(commands, self.commandsSimulation[9], rotation)
+        rotation = direction * math.radians(commands[9] - params.instrumentCommand.rotation.offset)
+        addCommand(commandsGUI, self.commandsSimulation[9], rotation)
         angles[3] = rotation
         self.endoscope.node.OrientableCanals.angles.value = angles
 
         # received q10 instrument R flexion L/R velocity in degree/s
         direction = params.instrumentCommand.flexionLR.direction
-        rotation = math.radians(self.commandsSimulation[10] + commands[
-            10] * dt - params.instrumentCommand.flexionLR.offset)  # convert to rotation angle in radian
+        rotation = math.radians(commands[10] - params.instrumentCommand.flexionLR.offset)  # convert to rotation angle in radian
         disp = direction * self.instruments[1].getCableDispFromFlexion(rotation)  # convert to displacement in mm
-        addCommand(commands, self.commandsSimulation[10], disp)
+        addCommand(commandsGUI, self.commandsSimulation[10], disp)
         self.instruments[1].node.cableL.value = disp
         self.instruments[1].node.cableR.value = -disp
 
         # received q11 instrument R gripper in degree
-        rotation = math.radians(
-            commands[11] - params.instrumentCommand.gripper.offset) * params.instrumentCommand.gripper.factor
-        commands += [rotation]
+        rotation = math.radians(commands[11] - params.instrumentCommand.gripper.offset) * params.instrumentCommand.gripper.factor
+        commandsGUI += [rotation]
         self.instruments[1].node.Gripper.angles.value = [rotation, -rotation]
 
         if self.gui is not None:
-            self.gui.setCommand(commands)
+            self.gui.setCommand(commandsGUI)
 
     def processCommandsToSend(self):
         self.updateCommandsSimulation()
