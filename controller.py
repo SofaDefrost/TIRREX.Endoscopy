@@ -3,7 +3,6 @@ import rclpy
 from std_msgs.msg import Float32MultiArray
 import sys
 import math
-from math import pi
 from params import Parameters
 import numpy as np
 
@@ -70,6 +69,7 @@ import Sofa.Core
 
 class SofaROSInterface(Sofa.Core.Controller):
     params = Parameters()
+    sendImage = False
 
     def __init__(self, wagon, framesOI, camera):
         Sofa.Core.Controller.__init__(self, wagon, framesOI, camera)
@@ -102,8 +102,11 @@ class SofaROSInterface(Sofa.Core.Controller):
         self.pubFramesOI = self.node.create_publisher(Float32MultiArray, "/TIRREX/endoscopy/simulationFramesOI", 10)
         self.pubImage = self.node.create_publisher(Float32MultiArray, "/TIRREX/endoscopy/simulationImage", 10)
 
-    # def draw(self, vparams):
-    #     self.processImageToSend
+        self.image = None
+
+    def draw(self, vParams):
+        if self.sendImage:
+            self.image = self.processImageToSend()
 
     def callback(self, commands):
         self.commandsInterface = commands.data
@@ -114,8 +117,7 @@ class SofaROSInterface(Sofa.Core.Controller):
     def onAnimateBeginEvent(self, event):
 
         # Receive commands from topic "/TIRREX/endoscopy/interfaceCommands"
-        rclpy.spin_once(self.node, timeout_sec=0.001)
-        # Something must be hidden in this spin_once(), without it the callback() is never called
+        rclpy.spin_once(self.node, timeout_sec=0.001)  # Enables callbacks
         if self.commandsInterface is not None:
             self.processCommandsReceived()
             self.commandsInterface = None
@@ -134,9 +136,9 @@ class SofaROSInterface(Sofa.Core.Controller):
         self.pubFramesOI.publish(msg)
 
         # Publish view through "/TIRREX/endoscopy/simulationImage" topic
-        # image = self.processImageToSend()
-        # msg.data = [float(d) for d in image]
-        # self.pubImage.publish(msg)
+        if self.image is not None:
+            msg.data = [float(d) for d in self.image]
+            self.pubImage.publish(msg)
 
     def updateCommandsSimulation(self):
         self.commandsSimulation = list([
