@@ -31,6 +31,7 @@ You will also need to install:
 ### Optional 
 
 - [SoftRobots.Inverse](https://github.com/SofaDefrost/SoftRobots.Inverse) plugin for SOFA to solve the inverse kinematics of the robot
+- MultiThreading plugin for SOFA
 - [tkinter](https://docs.python.org/fr/3/library/tkinter.html) to use a GUI to control the robot. This package is distributed by default with python on MacOS and Windows.
 - [ROS2](https://docs.ros.org/en/humble/Installation.html) to send commands to the robot from an external program (last tested with ROS2 Humble)
 - [pyopengl](https://pypi.org/project/PyOpenGL/) to send the SOFA view image through ROS

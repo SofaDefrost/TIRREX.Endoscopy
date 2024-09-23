@@ -105,7 +105,8 @@ class Instrument(BaseBeam):
         self.__addVisual(hook, path + '/mesh/hook.stl',
                          rotation=[90, -45, 90], translation=[-2., 0., 0.], index=self.node.indexExtremity.value - 1)
         self.__addCollision(hook, path + '/mesh/hookCollision.stl',
-                            rotation=[90, -45, 90], translation=[-2., 0., 0.], index=self.node.indexExtremity.value - 1)
+                            rotation=[90, -45, 90], translation=[-2., 0., 0.], index=self.node.indexExtremity.value - 1,
+                            collisionGroup=1)
 
     def __addVisual(self, node, filename, rotation, translation, index, name=''):
         visu = node.addChild('Visual' + name)

@@ -53,10 +53,11 @@ def addHeader(rootnode, multithreading=True, withConstraint=True):
         "Sofa.GUI.Component",  # Needed to use components AttachBodyButtonSetting
         "Sofa.Component.SolidMechanics.FEM.Elastic",  # Needed to use components HexahedronFEMForceField
         "Sofa.Component.Topology.Container.Grid",  # Needed to use components SparseGridRamificationTopology
-        'Sofa.Component.Constraint.Projective',  # Needed to use components [FixedConstraint]
+        'Sofa.Component.Constraint.Projective',  # Needed to use components [FixedProjectiveConstraint]
         'Sofa.Component.Mapping.Linear',  # Needed to use components [SkinningMapping,SubsetMultiMapping]
         'Sofa.Component.Mapping.NonLinear',  # Needed to use components [RigidMapping]
-        'Sofa.Component.StateContainer'  # Needed to use components [MechanicalObject]
+        'Sofa.Component.StateContainer',  # Needed to use components [MechanicalObject]
+        'MultiThreading' # Needed to use components [ParallelBVHNarrowPhase,ParallelBruteForceBroadPhase]
     ])
 
     settings.addObject('AttachBodyButtonSetting', stiffness=1)
@@ -66,8 +67,12 @@ def addHeader(rootnode, multithreading=True, withConstraint=True):
     if withConstraint:
         rootnode.addObject('CollisionPipeline')
         rootnode.addObject('RuleBasedContactManager', responseParams='mu=0.0', response='FrictionContactConstraint')
-        rootnode.addObject('BruteForceBroadPhase')
-        rootnode.addObject('BVHNarrowPhase')
+        if multithreading:
+            rootnode.addObject('ParallelBruteForceBroadPhase')
+            rootnode.addObject('ParallelBVHNarrowPhase')
+        else:
+            rootnode.addObject('BruteForceBroadPhase')
+            rootnode.addObject('BVHNarrowPhase')
         rootnode.addObject('LocalMinDistance', alarmDistance=2, contactDistance=0.1)
         rootnode.addObject('FreeMotionAnimationLoop', parallelCollisionDetectionAndFreeMotion=multithreading,
                            parallelODESolving=multithreading)

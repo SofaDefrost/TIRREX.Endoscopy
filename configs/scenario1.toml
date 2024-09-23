@@ -3,7 +3,7 @@
 sideViewSize=[750, 450]
 
 [Simulation]
-ROS=true
+ROS=false
 
 [EndoscopeWagons]
 number=1

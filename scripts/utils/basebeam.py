@@ -138,7 +138,7 @@ class BaseBeam:
         self.restBeam.addObject('EdgeSetTopologyContainer', position=[pos[0:3] for pos in position],
                                 edges=[[i, i + 1] for i in range(nbTotalVertebra)])
         self.restBeam.addObject('MechanicalObject', template='Rigid3', position=position)
-        self.restBeam.addObject('FixedConstraint', indices=0)
+        self.restBeam.addObject('FixedProjectiveConstraint', indices=0)
         self.restBeam.addObject('BeamInterpolation', defaultYoungModulus=self.params.youngModulus,
                                 dofsAndBeamsAligned=True,
                                 straight=True,

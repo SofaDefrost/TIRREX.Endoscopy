@@ -1,6 +1,6 @@
 [Simulation]
 ROS=false
-CPUMultithreading=false
+CPUMultithreading=true
 friction=0.6
 
 [EndoscopeWagons]
