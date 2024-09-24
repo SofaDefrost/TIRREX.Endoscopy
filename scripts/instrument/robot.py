@@ -67,7 +67,7 @@ class Instrument(BaseBeam):
         gripper.addObject('MechanicalObject', template='Vec1', position=[-0.0, 0.0],
                           rest_position=gripper.angles.getLinkPath())
         gripper.addObject('ArticulatedHierarchyContainer')
-        gripper.addObject('RestShapeSpringsForceField', stiffness=1e12, points=[0, 1])
+        gripper.addObject('RestShapeSpringsForceField', stiffness=1e3, points=[0, 1])
 
         rigid = gripper.addChild('RigidParts')
         self.deformable.addChild(rigid)
@@ -109,6 +109,7 @@ class Instrument(BaseBeam):
                             collisionGroup=1)
 
     def __addVisual(self, node, filename, rotation, translation, index, name=''):
+
         visu = node.addChild('Visual' + name)
         visu.addObject('MeshSTLLoader', filename=filename, rotation=rotation, translation=translation)
         visu.addObject('OglModel', src=visu.MeshSTLLoader.getLinkPath())
