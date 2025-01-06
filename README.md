@@ -34,7 +34,7 @@ You will also need to install:
 - MultiThreading plugin for SOFA
 - [tkinter](https://docs.python.org/fr/3/library/tkinter.html) to use a GUI to control the robot. This package is distributed by default with python on MacOS and Windows.
 - [ROS2](https://docs.ros.org/en/humble/Installation.html) to send commands to the robot from an external program (last tested with ROS2 Humble)
-- [pyopengl](https://pypi.org/project/PyOpenGL/) to send the SOFA view image through ROS
+- [pyopengl](https://pypi.org/project/PyOpenGL/) to send the SOFA view image through ROS (**WIP**)
 
 ## How to
 
@@ -123,7 +123,7 @@ The geometric and mechanical parameters of the endoscope and instruments can be 
 Two topics are created on the node *SOFASimulation*:
 - the topic **/TIRREX/endoscopy/simulationCommands**, on which the actual dofs values are being published at each time step of the simulation
 - the topic **/TIRREX/endoscopy/simulationFramesOI**, on which some frames of interest are being published at each time step of the simulation (see endoscope.py/addFramesOfInterest() and docs/FramesOfInterest.pdf)
-- the topic **/TIRREX/endoscopy/simulationImage**, on which the SOFA view image is being published at each time step of the simulation
+- **WIP**: the topic **/TIRREX/endoscopy/simulationImage**, on which the SOFA view image is being published at each time step of the simulation 
 - and the topic **/TIRREX/endoscopy/interfaceCommands**, on which the simulation is subscribing and looking for commands
 
 The simulation expects the following commands (see file `TIRREX.Endoscopy/controller.py`):
