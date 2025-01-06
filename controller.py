@@ -69,7 +69,7 @@ import Sofa.Core
 
 class SofaROSInterface(Sofa.Core.Controller):
     params = Parameters()
-    sendImage = False
+    sendImage = False # WIP: not working yet, work in progress requiring changes in SOFA
 
     def __init__(self, wagon, framesOI, camera):
         Sofa.Core.Controller.__init__(self, wagon, framesOI, camera)
